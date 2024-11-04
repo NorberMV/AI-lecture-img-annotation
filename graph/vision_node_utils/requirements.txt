@@ -1,0 +1,9 @@
+gradio
+
+# LangChain
+langchain-core
+langchain-google-vertexai
+pillow
+pre-commit
+pydantic
+python-dotenv

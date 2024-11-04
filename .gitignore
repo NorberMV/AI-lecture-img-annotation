@@ -1,0 +1,15 @@
+.311-env/
+__pycache__/
+another_tools/
+.git/
+.env
+.DS_Store
+.env
+.venv
+.py311
+.idea
+.env.yaml
+weights/
+__pycache__/
+.ipynb_checkpoints/
+tomato_outputs/
