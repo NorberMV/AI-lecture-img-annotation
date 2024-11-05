@@ -12,7 +12,12 @@ from langchain_google_vertexai import ChatVertexAI
 
 from .models import VisionModel
 from .schemas import ImageMessageModel, TextMessageModel, AIMessage
-from .settings import VISION_MODEL, PNG_FORMAT, LOGGER_FORMAT, SYS_IMG_ANALYSIS_PROMPT_TEST
+from .settings import (
+    VISION_MODEL,
+    PNG_FORMAT,
+    LOGGER_FORMAT,
+    SYS_IMG_ANALYSIS_PROMPT_TEST,
+)
 
 load_dotenv()
 
