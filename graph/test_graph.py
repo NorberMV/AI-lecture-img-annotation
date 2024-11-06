@@ -39,7 +39,7 @@ load_dotenv()
 class MyState(MessagesState):
     query: str
     image: str
-    vegetable: str
+    vegetable: str = ""
     characteristic: str
     threshold: float
     relatedness: bool
@@ -93,7 +93,7 @@ def tool_calling_llm(state: MyState) -> MyState:
 
     for msg in state["messages"]:
         if isinstance(msg, HumanMessage):
-            user_message = [msg]
+            query = [msg]
 
     if relatedness:
         # Format the tool call message
@@ -105,17 +105,21 @@ def tool_calling_llm(state: MyState) -> MyState:
                 f"\nthreshold: {extracted_values['threshold']}"
                 f"\nPlease generate an annotated image according "
                 f"to my question."
-                f"\nQuestion:{user_message[0].content}"
+                f"\nQuestion:{query[0].content}"
             )
         )
         # Merges the two messages
         user_message = add_messages(agent.system_message, tool_call_message)
     else:
-        user_message = add_messages(agent.system_message, user_message[0])
+        user_message = add_messages(agent.system_message, query[0])
     print(f"\nThe full message send to the agent is: {user_message!r}")
     return {
         "messages": [agent.llm_with_tools.invoke(user_message)],
         "relatedness": relatedness,
+        "vegetable": extracted_values["vegetable_type"],
+        "characteristic": extracted_values["characteristic"],
+        "threshold": extracted_values["threshold"],
+        "query": query[0].content,
     }
 
 
@@ -146,6 +150,10 @@ def run_graph(query: str):
     graph = build_graph()
     messages = [HumanMessage(content=query)]
     answer = graph.invoke({"messages": messages, "image": ANNOTATED_REF_IMAGE_PATH})
+
+    for ans in answer["messages"]:
+        if isinstance(ans, AIMessage):
+            answer["tool_call"] = ans.tool_calls
     _graph_prettier(answer)
     # This means the agent didn't use the tool,
     # so he previously replied.
@@ -183,20 +191,22 @@ def parse_input(img_analysis_json: str) -> Dict[str, Any]:
     parsed_data = json.loads(img_analysis_json)
     relatedness = parsed_data.get("relatedness")
 
-    if relatedness:
-        vegetable_type = parsed_data.get("vegetable_type", "")
-        characteristic = parsed_data.get("characteristic", "")
-        threshold_list = parsed_data.get("threshold", 0.5)
+    vegetable_type = parsed_data.get("vegetable_type", "")
+    characteristic = parsed_data.get("characteristic", "")
+    threshold_list = parsed_data.get("threshold", 0.5)
+    if not relatedness:
+        min_threshold = 0.0
+    else:
         min_threshold = min(threshold_list)
 
-        return {
-            "vegetable_type": vegetable_type,
-            "characteristic": characteristic,
-            "relatedness": relatedness,
-            "threshold": min_threshold,
-        }
-    # we only care about relatedness
-    return {"relatedness": relatedness}
+    return {
+        "vegetable_type": vegetable_type,
+        "characteristic": characteristic,
+        "relatedness": relatedness,
+        "threshold": min_threshold,
+    }
+    # # we only care about relatedness
+    # return {"relatedness": relatedness}
 
 
 def annotate_reference(uploaded_img_path: str):
