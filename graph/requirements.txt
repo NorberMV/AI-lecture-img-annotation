@@ -1,6 +1,5 @@
-langgraph
-langchain-core
-langchain-community
-langchain-openai
 ipython
-mermaid
+langchain-community
+langchain-core
+langchain-openai
+langgraph

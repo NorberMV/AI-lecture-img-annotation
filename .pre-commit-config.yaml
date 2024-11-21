@@ -28,4 +28,4 @@ repos:
     hooks:
     - id: black
       language_version: python3
-exclude: "images/.*|notebooks/.*"
+exclude: "images/.*|notebooks/.*|img_annotation/.*|tool_utils/.*"
